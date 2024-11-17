@@ -3,6 +3,7 @@ package com.ecommerce.project.controller;
 
 import com.ecommerce.project.model.Category;
 import com.ecommerce.project.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,25 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/api/public/categories")
+    @GetMapping("/public/categories")
     public ResponseEntity<List<Category>> getAllCategories(){
         List<Category> res = categoryService.getAllCategories();
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
 
-    @PostMapping("/api/public/categories")
-    public ResponseEntity<String> createCategory(@RequestBody Category category){
-        String res = categoryService.addCategory(category);
-        return new ResponseEntity<>(res,HttpStatus.CREATED);
+    @PostMapping("/public/categories")
+    public ResponseEntity<String> createCategory(@Valid @RequestBody Category category){
+        categoryService.addCategory(category);
+        return new ResponseEntity<>("Category Added successfully",HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/api/admin/categories/{categoryId}")
+    @DeleteMapping("/admin/categories/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
         try {
             String status = categoryService.deleteCategory(categoryId);
@@ -41,7 +43,7 @@ public class CategoryController {
         }
     }
 
-    @PutMapping("/api/public/categories/{categoryId}")
+    @PutMapping("/public/categories/{categoryId}")
     public ResponseEntity<String> updateCategory(@RequestBody Category category,
                                                  @PathVariable Long categoryId){
 
