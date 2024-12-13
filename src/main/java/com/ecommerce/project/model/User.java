@@ -4,18 +4,20 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "Users")
+@Table(name = "users",
+uniqueConstraints = {
+        @UniqueConstraint(columnNames = "userName"),
+        @UniqueConstraint(columnNames = "email")
+})
 @Getter
 @Setter
 public class User {
@@ -27,14 +29,17 @@ public class User {
 
     @NotBlank
     @Size(max = 20)
+    @Column(name = "userName")
     private String userName;
 
     @Email
     @NotBlank
+    @Column(name = "email")
     private String email;
 
     @NotBlank
     @Size(max = 30)
+    @Column(name = "password")
     private String password;
 
     public User(String userName, String email, String password) {
@@ -48,4 +53,19 @@ public class User {
     @JoinTable(name = "user_role",joinColumns = @JoinColumn(name = "user_id"),
     inverseJoinColumns = @JoinColumn(name="role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany( mappedBy = "user" ,
+            cascade = {CascadeType.PERSIST,CascadeType.MERGE},
+            orphanRemoval = true
+    )
+    @ToString.Exclude
+    private Set<Product> products;
+
+    @Getter
+    @Setter
+    @ManyToMany(cascade = {CascadeType.ALL})
+    @JoinTable(name = "user_addresses", joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "address_id"))
+    private List<Address> addresses;
+
 }
